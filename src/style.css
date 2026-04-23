@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-body-bob: body-bob 0.36s ease-in-out infinite;
+}
+
+@keyframes body-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-2px); }
+}
+
+/* Design tokens */
+:root {
+  --accent-gold: #f4c244;
+  --panel-bg: #1e1e2e;
+  --track-bg: #2a2a3e;
+  --text-primary: #e8e8f0;
+  --text-muted: #888899;
+  --border-color: #3a3a5a;
+  --border-subtle: #2e2e4a;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: var(--track-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
