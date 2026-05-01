@@ -1,68 +1,92 @@
-import { reactive } from "vue";
-import type { Horse } from "@/types";
+import { reactive } from "vue"
+import type { Horse } from "@/types"
 
 export interface AnimationEntry {
-  horse: Horse;
-  finishTime: number; // simulated seconds
+  horse: Horse
+  finishTime: number
 }
 
-export function useRaceAnimation() {
-  const progress = reactive<Record<number, number>>({});
-  let rafId: number | null = null;
+export const useRaceAnimation = () => {
+  const progress = reactive<Record<number, number>>({})
+  let rafId: number | null = null
+  let startTime = 0
+  let pausedElapsed = 0
+  let isPaused = false
+  let currentEntries: AnimationEntry[] = []
+  let currentDurationScale = 0
+  let resolveAnimation: (() => void) | null = null
 
-  function start(
-    entries: AnimationEntry[],
-    durationScale: number,
-  ): Promise<void> {
+  const frame = (now: number): void => {
+    const elapsed = now - startTime
+    let allDone = true
+
+    for (const { horse, finishTime } of currentEntries) {
+      const p = Math.min(100, (elapsed / (finishTime * currentDurationScale)) * 100)
+      progress[horse.id] = p
+      if (p < 100) allDone = false
+    }
+
+    if (allDone) {
+      rafId = null
+      resolveAnimation?.()
+      resolveAnimation = null
+    } else {
+      rafId = requestAnimationFrame(frame)
+    }
+  }
+
+  const start = (entries: AnimationEntry[], durationScale: number): Promise<void> => {
     return new Promise((resolve) => {
-      const startTime = performance.now();
+      currentEntries = entries
+      currentDurationScale = durationScale
+      resolveAnimation = resolve
+      isPaused = false
+      pausedElapsed = 0
+      startTime = performance.now()
 
-      // initialise progress for every horse in this round
       for (const { horse } of entries) {
-        progress[horse.id] = 0;
+        progress[horse.id] = 0
       }
 
-      function frame(now: number): void {
-        const elapsed = now - startTime;
-        let allDone = true;
-
-        for (const { horse, finishTime } of entries) {
-          const p = Math.min(
-            100,
-            (elapsed / (finishTime * durationScale)) * 100,
-          );
-          progress[horse.id] = p;
-          if (p < 100) allDone = false;
-        }
-
-        if (allDone) {
-          rafId = null;
-          resolve();
-        } else {
-          rafId = requestAnimationFrame(frame);
-        }
-      }
-
-      rafId = requestAnimationFrame(frame);
-    });
+      rafId = requestAnimationFrame(frame)
+    })
   }
 
-  function reset(): void {
+  const pause = (): void => {
+    if (rafId === null || isPaused) return
+    cancelAnimationFrame(rafId)
+    rafId = null
+    isPaused = true
+    pausedElapsed = performance.now() - startTime
+  }
+
+  const resume = (): void => {
+    if (!isPaused) return
+    isPaused = false
+    startTime = performance.now() - pausedElapsed
+    rafId = requestAnimationFrame(frame)
+  }
+
+  const reset = (): void => {
     if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
+      cancelAnimationFrame(rafId)
+      rafId = null
     }
+    isPaused = false
+    pausedElapsed = 0
+    resolveAnimation = null
     for (const key in progress) {
-      progress[Number(key)] = 0;
+      progress[Number(key)] = 0
     }
   }
 
-  function cleanup(): void {
+  const cleanup = (): void => {
     if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
+      cancelAnimationFrame(rafId)
+      rafId = null
     }
+    resolveAnimation = null
   }
 
-  return { progress, start, reset, cleanup };
+  return { progress, start, pause, resume, reset, cleanup }
 }

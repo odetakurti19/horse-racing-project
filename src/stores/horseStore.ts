@@ -1,10 +1,10 @@
-import type { Module } from "vuex";
-import type { Horse } from "@/types";
-import { generateHorses as createHorses } from "@/utils/horse";
-import type { RootState } from "./index";
+import type { Module } from "vuex"
+import type { Horse } from "@/types"
+import { generateHorses as createHorses } from "@/utils/horse"
+import type { RootState } from "./index"
 
 export interface HorseState {
-  horses: Horse[];
+  horses: Horse[]
 }
 
 export const horseModule: Module<HorseState, RootState> = {
@@ -17,18 +17,18 @@ export const horseModule: Module<HorseState, RootState> = {
   },
   mutations: {
     SET_HORSES(state, horses: Horse[]) {
-      state.horses = horses;
+      state.horses = horses
     },
     RESET(state) {
-      state.horses = [];
+      state.horses = []
     },
   },
   actions: {
     generateHorses({ commit }) {
-      commit("SET_HORSES", createHorses());
+      commit("SET_HORSES", createHorses())
     },
     reset({ commit }) {
-      commit("RESET");
+      commit("RESET")
     },
   },
-};
+}

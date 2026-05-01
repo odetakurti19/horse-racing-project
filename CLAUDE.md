@@ -37,6 +37,7 @@ src/
 ## Key Conventions
 
 ### Components
+
 - Always `<script setup lang="ts">` — no Options API
 - Props via `defineProps<Interface>()`, emits via `defineEmits<{ name: [type] }>()`
 - All interactive/important DOM elements need `data-testid="..."` for tests
@@ -44,6 +45,7 @@ src/
 - Use CSS custom properties — never hardcode colors
 
 ### Stores (`src/stores/`)
+
 - Split into `horseStore.ts`, `raceStore.ts`, and `index.ts` (root store)
 - Each module uses Vuex `Module<State, RootState>` with `namespaced: true`
 - State = plain object factory, Mutations = synchronous state changes, Actions = commit mutations
@@ -52,19 +54,19 @@ src/
 - No `setInterval`, animations, or async side effects inside store actions
 
 ### Composables (`src/composables/`)
+
 - Named `useXxx.ts`
 - Handles side effects (setInterval, animations) that don't belong in the store
 - Must expose a `cleanup()` function for teardown
 
 ### Types (`src/types/index.ts`)
+
 - All shared interfaces live here — `import type { Horse } from '@/types'`
 
 ### Utils (`src/utils/`)
-- `horse.ts` — horse generation and schedule building
-- `horseGenerator.ts` — random horse attribute logic
-- `scheduleGenerator.ts` — round/schedule construction
-- `raceUtils.ts` — finish-order and race computation helpers
-- `constants.ts` — shared constants (`RACE_STATUS`, `TOTAL_ROUNDS`, etc.)
+
+- `horse.ts` — all horse and schedule logic: `generateHorses`, `buildSchedule` (Fisher-Yates shuffle), `computeFinishTime`, `createHorse`, `createRound`
+- `constants.ts` — shared constants (`RACE_STATUS`, `TOTAL_ROUNDS`, `ROUND_DISTANCES`, etc.)
 - Pure functions only — no Vue refs, no store access
 - Fully unit-testable without Vue context
 
@@ -73,6 +75,7 @@ src/
 ## Testing
 
 ### Run tests
+
 ```bash
 yarn test                # run once
 yarn test:watch      # watch mode
@@ -95,9 +98,14 @@ const wrapper = mount(MyComponent)  // gets a fresh store, ignores state above
 ```
 
 ### Fake timers for animation tests
+
 ```ts
-beforeEach(() => { vi.useFakeTimers() })
-afterEach(() => { vi.useRealTimers() })
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const promise = startAnimation(1200)
 vi.runAllTimers()
@@ -109,9 +117,11 @@ const result = await promise
 ## Vite 8 / tsconfig Gotcha
 
 This project uses a **single flat `tsconfig.json`** — intentionally, no project references. Vite 8's oxc transformer requires every file to be covered by a tsconfig found via directory walk. Splitting into `tsconfig.app.json` + `tsconfig.node.json` with `"references"` breaks test files with:
+
 ```
 [TSCONFIG_ERROR] Failed to load tsconfig for 'src/test/setup.ts': Tsconfig not found
 ```
+
 Do not add project references.
 
 ---
@@ -119,8 +129,9 @@ Do not add project references.
 ## Tailwind CSS
 
 This project uses **Tailwind CSS 4** (Vite plugin via `@tailwindcss/vite`). Use utility classes directly in templates:
+
 ```html
-<div class="flex items-center gap-2 rounded-lg px-4 py-2">
+<div class="flex items-center gap-2 rounded-lg px-4 py-2"></div>
 ```
 
 - Prefer Tailwind utilities over writing custom CSS wherever possible
@@ -133,11 +144,13 @@ This project uses **Tailwind CSS 4** (Vite plugin via `@tailwindcss/vite`). Use 
 ## CSS Tokens
 
 Use CSS custom properties from `style.css`, never hardcode values:
+
 ```css
 color: var(--text-primary);
 background: var(--panel-bg);
 border: 1px solid var(--border-color);
 ```
+
 Key tokens: `--accent-gold`, `--panel-bg`, `--track-bg`, `--text-primary`, `--text-muted`, `--border-color`, `--border-subtle`
 
 ---
@@ -145,25 +158,28 @@ Key tokens: `--accent-gold`, `--panel-bg`, `--track-bg`, `--text-primary`, `--te
 ## Game Flow
 
 ```
-idle ──[generateProgram()]──→ scheduled
-                                └──[startRace()]──→ running
-                                                     ├──[pauseRace()]──→ paused ──[startRace()]──┐
-                                                     │                                            │
-                                                     └──[recordRoundResult() × 6]──→ finished    │
-                                                     ←───────────────────────────────────────────┘
+idle ──[horse/generateHorses + race/generateSchedule]──→ scheduled
+                                                           └──[race/startRace]──→ running
+                                                                                   ├──[race/pauseRace]──→ paused ──[race/startRace]──┐
+                                                                                   │                                                  │
+                                                                                   └──[race/completeRound × 6]──→ finished            │
+                                                                                   ←─────────────────────────────────────────────────┘
 ```
 
-- `App.vue` watches `store.status`, triggers animation when it becomes `'running'`
-- Finish order is precomputed via `store.computeFinishOrder()` before animation starts
-- When animation resolves, it calls `store.recordRoundResult(order)` — auto-advances or finishes
+- `RaceView.vue` watches `store.state.race.status`, calls `runRound()` when it becomes `'running'`
+- `runRound()` calls `computeFinishTime(horse, distance)` per horse, drives animation via `useRaceAnimation.start()`
+- When the animation Promise resolves, results are sorted and dispatched via `race/completeRound`
+- `completeRound` auto-advances: `runRound()` is called recursively until status is no longer `'running'`
 
 ---
 
 ## Path Alias
 
 Always use `@/` for internal imports (maps to `src/`):
+
 ```ts
-import { useStore } from '@/stores'
-import type { Horse } from '@/types'
+import { useStore } from "@/stores"
+import type { Horse } from "@/types"
 ```
+
 Never use relative paths like `../../stores/index`.

@@ -1,11 +1,5 @@
-import type { Horse, Round, RaceSchedule } from "@/types";
-import {
-  ROUND_DISTANCES,
-  RACE_STATUS,
-  TOTAL_HORSES,
-  HORSES_PER_ROUND,
-} from "@/utils/constants";
-
+import type { Horse, Round } from "@/types"
+import { ROUND_DISTANCES, TOTAL_HORSES, HORSES_PER_ROUND } from "@/utils/constants"
 const HORSE_NAMES: string[] = [
   "Thunder Storm",
   "Silver Arrow",
@@ -27,7 +21,7 @@ const HORSE_NAMES: string[] = [
   "Night Fury",
   "Crystal Clear",
   "Brave Heart",
-];
+]
 
 const HORSE_COLORS: string[] = [
   "#E63946", // vivid red
@@ -50,62 +44,43 @@ const HORSE_COLORS: string[] = [
   "#40C4FF", // light blue
   "#FF6D00", // orange accent
   "#AA00FF", // purple accent
-];
+]
 
-export function createHorse(
-  id: number,
-  name: string,
-  color: string,
-  condition: number,
-): Horse {
-  return { id, name, color, condition };
+export const createHorse = (id: number, name: string, color: string, condition: number): Horse => {
+  return { id, name, color, condition }
 }
 
-export function createRound(roundNumber: number, distance: number): Round {
+export const createRound = (roundNumber: number, distance: number): Round => {
   return {
     roundNumber,
     distance,
     selectedHorses: [],
     results: [],
-    status: RACE_STATUS.IDLE,
-  };
+  }
 }
 
-export function createRaceSchedule(): RaceSchedule {
-  const rounds: Round[] = ROUND_DISTANCES.map((distance, index) =>
-    createRound(index + 1, distance),
-  );
-  return { rounds };
-}
-
-export function generateHorses(): Horse[] {
+export const generateHorses = (): Horse[] => {
   return Array.from({ length: TOTAL_HORSES }, (_, i) =>
-    createHorse(
-      i + 1,
-      HORSE_NAMES[i],
-      HORSE_COLORS[i],
-      Math.floor(Math.random() * 100) + 1,
-    ),
-  );
+    createHorse(i + 1, HORSE_NAMES[i], HORSE_COLORS[i], Math.floor(Math.random() * 100) + 1),
+  )
 }
 
-export function buildSchedule(horses: Horse[]): Round[] {
+export const buildSchedule = (horses: Horse[]): Round[] => {
   return ROUND_DISTANCES.map((distance, index) => {
-    const shuffled = [...horses].sort(() => Math.random() - 0.5);
-    const round = createRound(index + 1, distance);
-    round.selectedHorses = shuffled.slice(0, HORSES_PER_ROUND);
-    return round;
-  });
+    const shuffled = [...horses]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    const round = createRound(index + 1, distance)
+    round.selectedHorses = shuffled.slice(0, HORSES_PER_ROUND)
+    return round
+  })
 }
 
-/**
- * Compute a simulated finish time (in seconds) for a horse given race distance.
- * Higher condition → faster speed. A small random variance is added per run.
- */
-export function computeFinishTime(horse: Horse, distance: number): number {
-  // Speed range: 13–19 m/s based on condition 1–100
-  const baseSpeed = 13 + (horse.condition / 100) * 6;
-  const variance = (Math.random() - 0.5) * 1.5; // ±0.75 m/s
-  const speed = Math.max(10, baseSpeed + variance);
-  return distance / speed; // seconds
+export const computeFinishTime = (horse: Horse, distance: number): number => {
+  const baseSpeed = 13 + (horse.condition / 100) * 6
+  const variance = (Math.random() - 0.5) * 1.5
+  const speed = Math.max(10, baseSpeed + variance)
+  return distance / speed
 }

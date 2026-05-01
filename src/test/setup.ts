@@ -1,4 +1,4 @@
-import { config } from "@vue/test-utils";
+import { config } from "@vue/test-utils"
 
 config.global.stubs = {
   Card: {
@@ -7,8 +7,7 @@ config.global.stubs = {
   },
   Button: {
     props: ["disabled", "label", "severity", "icon"],
-    template:
-      '<button :disabled="disabled" v-bind="$attrs">{{ label }}</button>',
+    template: '<button :disabled="disabled" v-bind="$attrs">{{ label }}</button>',
   },
   Tag: {
     props: ["value", "severity"],
@@ -27,4 +26,4 @@ config.global.stubs = {
   TransitionGroup: {
     template: "<div><slot /></div>",
   },
-};
+}
