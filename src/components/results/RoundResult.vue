@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import Divider from 'primevue/divider'
-import type { Round } from '@/types'
+import Card from "primevue/card"
+import Divider from "primevue/divider"
+import type { Round } from "@/types"
 
 defineProps<{ round: Round }>()
 </script>
@@ -26,7 +26,10 @@ defineProps<{ round: Round }>()
           <span class="flex-1 font-medium" :style="{ color: result.horse.color }">
             {{ result.horse.name }}
           </span>
-          <span class="text-(--text-muted) [font-variant-numeric:tabular-nums] shrink-0" data-testid="finish-time">
+          <span
+            class="text-(--text-muted) [font-variant-numeric:tabular-nums] shrink-0"
+            data-testid="finish-time"
+          >
             {{ result.finishTime.toFixed(2) }}s
           </span>
         </li>

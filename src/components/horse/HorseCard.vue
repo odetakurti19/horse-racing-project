@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import ProgressBar from 'primevue/progressbar'
-import type { Horse } from '@/types'
+import Card from "primevue/card"
+import ProgressBar from "primevue/progressbar"
+import type { Horse } from "@/types"
 
 defineProps<{ horse: Horse }>()
 </script>
@@ -11,7 +11,12 @@ defineProps<{ horse: Horse }>()
     <template #content>
       <div class="flex items-center gap-3">
         <div class="flex flex-col gap-[0.3rem] flex-1 min-w-0">
-          <span class="text-[0.8rem] font-semibold whitespace-nowrap overflow-hidden text-ellipsis" data-testid="horse-name">{{ horse.name }}</span>
+          <span
+            class="text-[0.8rem] font-semibold whitespace-nowrap overflow-hidden text-ellipsis"
+            data-testid="horse-name"
+          >
+            {{ horse.name }}
+          </span>
           <ProgressBar
             :value="horse.condition"
             data-testid="condition-bar"

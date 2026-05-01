@@ -20,18 +20,18 @@ An interactive horse racing simulation game built with Vue 3, Vuex, and Vite —
 
 ## Tech Stack
 
-| Tool | Purpose |
-|------|---------|
-| **Vue 3** | UI framework |
+| Tool                                   | Purpose                    |
+| -------------------------------------- | -------------------------- |
+| **Vue 3**                              | UI framework               |
 | **Composition API (`<script setup>`)** | Modern component authoring |
-| **TypeScript** | Type safety throughout |
-| **Vuex 4** | State management |
-| **Vite 8** | Dev server + build tooling |
-| **PrimeVue 4** | UI component library |
-| **Tailwind CSS 4** | Utility-first styling |
-| **Vitest** | Unit test runner |
-| **@vue/test-utils** | Vue component testing |
-| **Playwright** | End-to-end testing |
+| **TypeScript**                         | Type safety throughout     |
+| **Vuex 4**                             | State management           |
+| **Vite 8**                             | Dev server + build tooling |
+| **PrimeVue 4**                         | UI component library       |
+| **Tailwind CSS 4**                     | Utility-first styling      |
+| **Vitest**                             | Unit test runner           |
+| **@vue/test-utils**                    | Vue component testing      |
+| **Playwright**                         | End-to-end testing         |
 
 ---
 
@@ -115,15 +115,19 @@ yarn test:e2e            # End-to-end tests (Playwright)
 ## Architecture
 
 ### Vuex Store (`stores/`)
+
 Split into `horseStore` and `raceStore` modules, combined in `index.ts`. Single source of truth for all game state.
 
 ### Animation Composable (`composables/useRaceAnimation.ts`)
+
 Deliberately decoupled from the store. Manages per-frame progress, finish order tracking, and timer cleanup.
 
 ### Deterministic Simulation
+
 Finish order is **precomputed** before animation. Animation speeds are derived from that order so the visual result always matches the stored result. Condition score + randomness determines outcome.
 
 ### Component Architecture
+
 ```
 App.vue (orchestrator + watcher)
 ├── ControlPanel   → emits: generate | start | pause | reset
@@ -133,6 +137,7 @@ App.vue (orchestrator + watcher)
 ```
 
 ### Status Machine
+
 ```
 idle → scheduled → running ↔ paused → finished
 ```

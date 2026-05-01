@@ -1,8 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
-import ResultsPanel from "@/components/results/ResultsPanel.vue";
-import type { Round } from "@/types";
-import { RACE_STATUS } from "@/utils/constants";
+import { describe, it, expect } from "vitest"
+import { mount } from "@vue/test-utils"
+import ResultsPanel from "@/components/results/ResultsPanel.vue"
+import type { Round } from "@/types"
 
 const makeRound = (n: number): Round => ({
   roundNumber: n,
@@ -15,29 +14,28 @@ const makeRound = (n: number): Round => ({
       finishTime: 90.5,
     },
   ],
-  status: RACE_STATUS.FINISHED,
-});
+})
 
 describe("ResultsPanel", () => {
   it("shows empty state message when no rounds", () => {
-    const wrapper = mount(ResultsPanel, { props: { rounds: [] } });
-    expect(wrapper.find('[data-testid="results-empty"]').exists()).toBe(true);
-  });
+    const wrapper = mount(ResultsPanel, { props: { rounds: [] } })
+    expect(wrapper.find('[data-testid="results-empty"]').exists()).toBe(true)
+  })
 
   it("hides empty state when rounds are provided", () => {
-    const wrapper = mount(ResultsPanel, { props: { rounds: [makeRound(1)] } });
-    expect(wrapper.find('[data-testid="results-empty"]').exists()).toBe(false);
-  });
+    const wrapper = mount(ResultsPanel, { props: { rounds: [makeRound(1)] } })
+    expect(wrapper.find('[data-testid="results-empty"]').exists()).toBe(false)
+  })
 
   it("renders one RoundResult per round", () => {
     const wrapper = mount(ResultsPanel, {
       props: { rounds: [makeRound(1), makeRound(2)] },
-    });
-    expect(wrapper.findAll('[data-testid="round-result"]')).toHaveLength(2);
-  });
+    })
+    expect(wrapper.findAll('[data-testid="round-result"]')).toHaveLength(2)
+  })
 
   it("renders the results-panel container", () => {
-    const wrapper = mount(ResultsPanel, { props: { rounds: [] } });
-    expect(wrapper.find('[data-testid="results-panel"]').exists()).toBe(true);
-  });
-});
+    const wrapper = mount(ResultsPanel, { props: { rounds: [] } })
+    expect(wrapper.find('[data-testid="results-panel"]').exists()).toBe(true)
+  })
+})

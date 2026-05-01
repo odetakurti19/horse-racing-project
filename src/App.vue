@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RaceView from '@/views/RaceView.vue'
+import RaceView from "@/views/RaceView.vue"
 </script>
 
 <template>
